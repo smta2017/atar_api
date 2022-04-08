@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Exceptions\HttpResponseException;
 use InfyOm\Generator\Utils\ResponseUtil;
 use Response;
 
@@ -18,12 +19,12 @@ use Response;
  */
 class AppBaseController extends Controller
 {
-    public function sendResponse($result, $message)
+    public static function sendResponse($result, $message)
     {
         return Response::json(ResponseUtil::makeResponse($message, $result));
     }
 
-    public function sendError($error, $code = 404)
+    public static function sendError($error, $code = 404)
     {
         return Response::json(ResponseUtil::makeError($error), $code);
     }
@@ -34,5 +35,21 @@ class AppBaseController extends Controller
             'success' => true,
             'message' => $message
         ], 200);
+    }
+
+    public static function apiFormatValidation($validator)
+    {
+        $errors = self::convertValidationErrors($validator->errors());
+        $response = self::sendError($errors);
+        throw new HttpResponseException($response);
+    }
+
+    public static function convertValidationErrors($errors)
+    {
+        $err_msg = [];
+        foreach ($errors->messages() as $key => $value) {
+            $err_msg[$key] = $value[0];
+        };
+        return $err_msg;
     }
 }
