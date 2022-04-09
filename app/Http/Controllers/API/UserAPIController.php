@@ -11,6 +11,7 @@ use App\Http\Controllers\AppBaseController;
 use App\Http\Resources\UserResource;
 use Response;
 
+
 /**
  * Class UserController
  * @package App\Http\Controllers\API
@@ -57,9 +58,32 @@ class UserAPIController extends AppBaseController
      */
     public function store(CreateUserAPIRequest $request)
     {
+
+
         $input = $request->all();
 
         $user = $this->userRepository->create($input);
+
+        $sub_domain =  explode('.', $_SERVER['HTTP_HOST'])[0];
+
+        $tenantUser = [
+            'tenant' => $sub_domain,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'domain' => $sub_domain,
+            'google_token' => $request->google_token,
+        ];
+
+        \DB::connection('mysql')->table('tenant_users')->get();
+        ([
+                'tenant' => $sub_domain,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'domain' => $sub_domain,
+                'google_token' => $request->google_token,
+            ]
+        );
+
 
         return $this->sendResponse(
             new UserResource($user),

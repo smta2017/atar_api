@@ -10,12 +10,13 @@ use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 use App\Models\User;
+use App\Repositories\UserRepository;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use DB;
+use Illuminate\Container\Container as Container;
 
 /**
  * Class AuthRepository
@@ -58,10 +59,15 @@ class AuthRepository
 
     /**
      * @param $request
-     * @return Application|ResponseFactory|Response
+    //  * @return Application|ResponseFactory|Response
      */
     public function loginUser($request)
     {
+        // login by phone or email
+        if (is_numeric($request['email'])) {
+            $request = ['phone' => $request['email'], 'password' => $request['password']];
+        }
+
         if (!auth()->attempt($request)) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
@@ -94,6 +100,18 @@ class AuthRepository
                     ['password' => Hash::make($request->password), 'name' => $request->name . '-' . $request->domain],
                 ));
             });
+
+            $tenantUser = [
+                'tenant' => $request->domain,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'domain' => $request->domain,
+                'google_token' => $request->google_token,
+            ];
+
+            $userRepository = new UserRepository(new Container());
+
+            $userRepository->storeCentralTenantUser($tenantUser);
 
             // \DB::commit();
             // all good

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\API\Auth;
 
 use App\Http\Controllers\AppBaseController;
 use App\Http\Requests\Auth\RegisterRequest;
-use App\Http\Resources\User\UserResource;
+use App\Http\Resources\UserResource;
 use App\Repositories\Auth\AuthRepository;
 use Illuminate\Http\Request;
 use Auth;
@@ -12,7 +12,6 @@ use Auth;
 class AuthController extends AppBaseController
 {
 
-     
     protected $auth;
 
     /**
@@ -47,8 +46,8 @@ class AuthController extends AppBaseController
 
     public function me()
     {
-        return "IM";
-        // return $this->sendResponse("sucsess",new UserResource(auth()->user()));
+        // return "IM";
+        return $this->sendResponse(new UserResource(auth()->user()), "sucsess");
     }
 
     /**
