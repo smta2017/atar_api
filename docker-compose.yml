@@ -1,0 +1,38 @@
+version: '3.3'
+
+services:
+    app:
+        build:
+            context: .
+            dockerfile: .docker/app/Dockerfile
+        image: 'shouts.dev/laravel'
+        container_name: park-app
+        ports:
+            - "8002:80"
+        volumes:
+            - ./:/var/www/html
+        networks:
+            - park-network
+        depends_on:
+            - mysql
+    mysql:
+        image: mysql
+        container_name: park-db
+        restart: unless-stopped
+        tty: true
+        ports:
+            - "3307:3306"
+        environment:
+            MYSQL_DATABASE: ${DB_DATABASE}
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+            MYSQL_ROOT_USERNAME: ${DB_USERNAME}
+            MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+        volumes:
+            - ./.docker/mysql:/var/lib/mysql
+        networks:
+            - park-network
+
+networks:
+    park-network:
+        driver: bridge
