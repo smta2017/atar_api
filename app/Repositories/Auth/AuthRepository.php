@@ -80,45 +80,39 @@ class AuthRepository
      */
     public function registerUser($request)
     {
-        // \DB::beginTransaction();
+    
+        $tenantUser = [
+            'tenant' => $request->domain,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'domain' => $request->domain,
+            'google_token' => $request->google_token,
+        ];
 
-        try {
-            $tenant = \App\Models\Tenant::create([
-                'id' => $request->domain,
-                'plan' =>  $request->plan,
-                'email' =>  $request->email,
-                'phone' =>  $request->phone,
-            ]);
+        $userRepository = new UserRepository(new Container());
 
-            $tenant->domains()->create([
-                'domain' => $request->domain . '.' . config('tenancy.central_domains')[0],
-            ]);
+        $userRepository->storeCentralTenantUser($tenantUser);
 
-            $tenant->run(function () use ($request) {
-                User::create(array_merge(
-                    $request->all(),
-                    ['password' => Hash::make($request->password), 'name' => $request->name . '-' . $request->domain],
-                ));
-            });
+        $tenant = \App\Models\Tenant::create([
+            'id' => $request->domain,
+            'plan' =>  $request->plan,
+            'email' =>  $request->email,
+            'phone' =>  $request->phone,
+        ]);
 
-            $tenantUser = [
-                'tenant' => $request->domain,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'domain' => $request->domain,
-                'google_token' => $request->google_token,
-            ];
+        $tenant->domains()->create([
+            'domain' => $request->domain . '.' . config('tenancy.central_domains')[0],
+        ]);
 
-            $userRepository = new UserRepository(new Container());
+        $tenant->run(function () use ($request) {
+            User::create(array_merge(
+                $request->all(),
+                ['password' => Hash::make($request->password), 'name' => $request->name . '-' . $request->domain],
+            ));
+        });
 
-            $userRepository->storeCentralTenantUser($tenantUser);
 
-            // \DB::commit();
-            // all good
-        } catch (\Exception $e) {
-            // \DB::rollback();
-            // something went wrong
-        }
+
 
         return ['tenant' => $tenant];
         //==========================================

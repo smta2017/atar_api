@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'v1'], function () {
     Route::group(['prefix' => 'auth'], function () {
+        Route::get('get-domain', [AuthController::class, 'getDomain']);
         Route::post('register', [AuthController::class, 'register']);
     });
 });

@@ -31,8 +31,8 @@ class RegisterRequest extends FormRequest
             $unique = '|unique:users';
         }
         return [
-            'domain'=>'required|min:3|max:8',
-            'name' => 'required|min:3|max:80',
+            'domain'=>'required|min:2|max:8',
+            'name' => 'required|min:2|max:80',
             'email' => 'email|required|email|unique:users',
             'phone' => 'required|size:11'  . $unique,
             'password' => 'required|min:8',

@@ -5,12 +5,13 @@ namespace App\Repositories;
 use App\Models\TenantUser;
 use App\Models\User;
 use App\Repositories\BaseRepository;
+use Illuminate\Http\Request;
 
 /**
  * Class UserRepository
  * @package App\Repositories
  * @version April 4, 2022, 9:27 pm UTC
-*/
+ */
 
 class UserRepository extends BaseRepository
 {
@@ -39,7 +40,7 @@ class UserRepository extends BaseRepository
     {
         return User::class;
     }
-    
+
     public function storeCentralTenantUser($request)
     {
         $user = new TenantUser();
@@ -48,8 +49,7 @@ class UserRepository extends BaseRepository
         $user->phone = $request['phone'];
         $user->domain = $request['domain'];
         $user->google_token = $request['google_token'];
-        if ($user->save()) {
-            return $user;
-        };
+        $val = $user->save();
+        return  $val;
     }
 }
